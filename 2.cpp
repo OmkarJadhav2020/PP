@@ -1,64 +1,57 @@
 #include <iostream>
+#include <cmath>
 #include <stdexcept>
-using namespace std;
-// Base class with virtual function for calculating average
-class CalculateAverage {
-protected:
-    int numbers[5];
 
+// Base class with virtual function for power calculation
+class PowerCalculator {
 public:
-    virtual void inputNumbers() {
-        cout << "Enter 5 numbers: ";
-        for (int i = 0; i < 5; ++i) {
-            cin >> numbers[i];
-        }
+    virtual double power(double n, int p = 2) {
+        return std::pow(n, p);
     }
 
-    virtual double calculate() {
-        double sum = 0;
-        for (int i = 0; i < 5; ++i) {
-            sum += numbers[i];
-        }
-        return sum / 5.0;
-    }
-
-    virtual ~CalculateAverage() {}
+    virtual ~PowerCalculator() {}
 };
 
-// Derived class with friend function for handling exceptions
-class CalculateAverageWithExceptionHandling : public CalculateAverage {
-    friend void checkNumbers(const CalculateAverageWithExceptionHandling &obj);
+// Derived class with friend function for exception handling
+class PowerCalculatorWithExceptionHandling : public PowerCalculator {
+    friend void checkExponent(int exp);
 
 public:
-    void inputNumbers() override {
-        cout << "Enter 5 numbers (within the range of -100 to 100): ";
-        for (int i = 0; i < 5; ++i) {
-            cin >> numbers[i];
+    double power(double n, int p = 2) override {
+        if (p < 0) {
+            throw std::invalid_argument("Exponent must be a non-negative integer!");
         }
+        return std::pow(n, p);
     }
 };
 
-// Friend function to check if the numbers are within a specified range
-void checkNumbers(const CalculateAverageWithExceptionHandling &obj) {
-    for (int i = 0; i < 5; ++i) {
-        if (obj.numbers[i] < -100 || obj.numbers[i] > 100) {
-            throw out_of_range("Number out of range! Please enter numbers between -100 and 100.");
-        }
+// Friend function to check if the exponent is a non-negative integer
+void checkExponent(int exp) {
+    if (exp < 0) {
+        throw std::invalid_argument("Exponent must be a non-negative integer!");
     }
 }
 
 int main() {
     try {
-        CalculateAverageWithExceptionHandling obj;
-        obj.inputNumbers();
+        PowerCalculatorWithExceptionHandling obj;
+        double base;
+        int exponent;
 
-        checkNumbers(obj);
+        std::cout << "Enter the base number: ";
+        std::cin >> base;
 
-        double average = obj.calculate();
-        cout << "Average of the 5 numbers is: " << average << endl;
+        std::cout << "Enter the exponent (default is 2 if omitted): ";
+        std::cin >> exponent;
+
+        checkExponent(exponent);
+
+        double result = obj.power(base, exponent);
+
+        std::cout << base << " raised to the power " << exponent << " is: " << result << std::endl;
     }
-    catch (const exception &e) {
-        cerr << "Exception: " << e.what() << endl;
+    catch (const std::exception &e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
     }
 
     return 0;
